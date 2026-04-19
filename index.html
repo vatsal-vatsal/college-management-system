@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>College Management System</h1>
+            <p>Manage student information and records</p>
+        </header>
+
+        <main>
+            <section class="form-section">
+                <h2>Student Registration</h2>
+                <form id="studentForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentId">Student ID</label>
+                            <input type="text" id="studentId" name="studentId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course">Course</label>
+                            <select id="course" name="course" required>
+                                <option value="">Select Course</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Business">Business</option>
+                                <option value="Medicine">Medicine</option>
+                                <option value="Arts">Arts</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="semester">Semester</label>
+                            <input type="number" id="semester" name="semester" min="1" max="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gpa">GPA (out of 10)</label>
+                            <input type="number" id="gpa" name="gpa" min="0" max="10" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Register Student</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-section">
+                <div class="section-header">
+                    <h2>Student Records</h2>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search students...">
+                        <button onclick="searchStudents()">Search</button>
+                    </div>
+                </div>
+                <div id="studentsList" class="students-grid">
+                    <!-- Students will be loaded here -->
+                </div>
+                <div id="loadingSpinner" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading students...</p>
+                </div>
+            </section>
+        </main>
+
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <script>
+        // For Vercel deployment, we'll inject environment variables here
+        // This script will be replaced during build process
+        window.ENV = {
+            SUPABASE_URL: 'https://kzmsvbiotmruimngbcfy.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6bXN2YmlvdG1ydWltbmdiY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDE0MDgsImV4cCI6MjA5MjE3NzQwOH0.tUXETKDixQRIHGgByWTu6QKLyveEDgHJIwibARksH0U'
+        };
+    </script>
+    <script src="script-vercel.js"></script>
+</body>
+</html>
