@@ -1,6 +1,6 @@
 // Initialize Supabase client with environment variables for Vercel deployment
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://kzmsvbiotmruimngbcfy.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'your-local-anon-key';
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || 'https://kzmsvbiotmruimngbcfy.supabase.co';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || 'your-local-anon-key';
 
 // Initialize the Supabase client
 let supabaseClient;
