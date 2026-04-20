@@ -95,9 +95,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="course">Course</label>
-                                    <select id="course" name="course" required>
-                                        <option value="">Select Course</option>
-                                    </select>
+                                    <input type="text" id="course" name="course" placeholder="Enter course name" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="semester">Semester</label>
@@ -349,7 +347,8 @@
                 loadCourses(),
                 loadDepartments()
             ]);
-            populateDropdowns();
+            // Wait a bit then populate dropdowns
+            setTimeout(populateDropdowns, 500);
         }
 
         // Load students
@@ -589,9 +588,22 @@
             };
 
             try {
-                const { data, error } = await supabaseClient.from('students').insert([studentData]);
+                let result;
+                if (editingId) {
+                    // Update existing student
+                    result = await supabaseClient.from('students').update(studentData).eq('id', editingId);
+                    showNotification('Student updated successfully!', 'success');
+                    editingId = null;
+                    document.querySelector('#studentForm .btn-primary').textContent = 'Register Student';
+                } else {
+                    // Add new student
+                    result = await supabaseClient.from('students').insert([studentData]);
+                    showNotification('Student added successfully!', 'success');
+                }
+                
+                const { data, error } = result;
                 if (error) throw error;
-                showNotification('Student added successfully!', 'success');
+                
                 e.target.reset();
                 await loadStudents();
             } catch (error) {
@@ -672,6 +684,8 @@
         // Clear form functions
         function clearStudentForm() {
             document.getElementById('studentForm').reset();
+            editingId = null;
+            document.querySelector('#studentForm .btn-primary').textContent = 'Register Student';
         }
 
         function clearFacultyForm() {
@@ -802,9 +816,12 @@
             document.getElementById('semester').value = student.semester;
             document.getElementById('gpa').value = student.gpa;
             
+            // Update submit button text
+            document.querySelector('#studentForm .btn-primary').textContent = 'Update Student';
+            
             // Switch to students tab and scroll to form
             showTab('students');
-            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            document.querySelector('#students-tab .form-section').scrollIntoView({ behavior: 'smooth' });
             
             showNotification('Student loaded for editing', 'info');
         }
