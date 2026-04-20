@@ -609,8 +609,7 @@
                         phone: studentData.phone,
                         course: studentData.course,
                         semester: studentData.semester,
-                        gpa: studentData.gpa,
-                        updated_at: new Date().toISOString()
+                        gpa: studentData.gpa
                     };
                     
                     result = await supabaseClient.from('students').update(updateData).eq('id', editingStudentId);
@@ -657,8 +656,7 @@
                         phone: facultyData.phone,
                         department_id: facultyData.department_id,
                         specialization: facultyData.specialization,
-                        hire_date: facultyData.hire_date,
-                        updated_at: new Date().toISOString()
+                        hire_date: facultyData.hire_date
                     };
                     
                     result = await supabaseClient.from('faculty').update(updateData).eq('id', editingFacultyId);
@@ -704,8 +702,7 @@
                         credits: courseData.credits,
                         department_id: courseData.department_id,
                         faculty_id: courseData.faculty_id,
-                        semester: courseData.semester,
-                        updated_at: new Date().toISOString()
+                        semester: courseData.semester
                     };
                     
                     result = await supabaseClient.from('courses').update(updateData).eq('id', editingCourseId);

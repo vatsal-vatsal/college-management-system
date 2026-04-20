@@ -24,7 +24,45 @@ A modern web application for managing student records built with plain HTML, CSS
 In your Supabase project, go to the SQL Editor and run this query:
 
 ```sql
-CREATE TABLE IF NOT EXISTS students (
+
+
+
+-- Departments Table
+CREATE TABLE departments (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    head_name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Faculty Table
+CREATE TABLE faculty (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT,
+    department_id UUID REFERENCES departments(id),
+    specialization TEXT,
+    hire_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Courses Table
+CREATE TABLE courses (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    course_code TEXT NOT NULL UNIQUE,
+    course_name TEXT NOT NULL,
+    credits INTEGER NOT NULL,
+    department_id UUID REFERENCES departments(id),
+    faculty_id UUID REFERENCES faculty(id),
+    semester INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Students Table (simplified, no foreign keys for now)
+CREATE TABLE students (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
@@ -34,13 +72,19 @@ CREATE TABLE IF NOT EXISTS students (
     course TEXT NOT NULL,
     semester INTEGER NOT NULL,
     gpa DECIMAL(3,1) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_students_email ON students(email);
-CREATE INDEX IF NOT EXISTS idx_students_student_id ON students(student_id);
-CREATE INDEX IF NOT EXISTS idx_students_course ON students(course);
+-- Indexes
+CREATE INDEX idx_faculty_department ON faculty(department_id);
+CREATE INDEX idx_courses_department ON courses(department_id);
+CREATE INDEX idx_courses_faculty ON courses(faculty_id);
+CREATE INDEX idx_students_email ON students(email);
+CREATE INDEX idx_students_student_id ON students(student_id);
+
+
+
+
 ```
 
 ### 3. Configure the Application
