@@ -95,7 +95,9 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="course">Course</label>
-                                    <input type="text" id="course" name="course" placeholder="Enter course name" required>
+                                    <select id="course" name="course" required>
+                                        <option value="">Select Course</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="semester">Semester</label>
@@ -304,7 +306,10 @@
         let faculty = [];
         let courses = [];
         let departments = [];
-        let editingId = null;
+        let editingStudentId = null;
+        let editingFacultyId = null;
+        let editingCourseId = null;
+        let editingDepartmentId = null;
 
         // Initialize Supabase
         function initializeSupabase() {
@@ -564,6 +569,13 @@
                 facultySelect.innerHTML = '<option value="">Select Faculty</option>' +
                     faculty.map(member => `<option value="${member.id}">${member.first_name} ${member.last_name}</option>`).join('');
             }
+
+            // Populate course dropdown for students
+            const courseSelect = document.getElementById('course');
+            if (courseSelect) {
+                courseSelect.innerHTML = '<option value="">Select Course</option>' +
+                    courses.map(course => `<option value="${course.course_name}">${course.course_name}</option>`).join('');
+            }
         }
 
         // Form handlers
@@ -589,11 +601,21 @@
 
             try {
                 let result;
-                if (editingId) {
-                    // Update existing student
-                    result = await supabaseClient.from('students').update(studentData).eq('id', editingId);
+                if (editingStudentId) {
+                    // Update existing student - exclude unique fields
+                    const updateData = {
+                        first_name: studentData.first_name,
+                        last_name: studentData.last_name,
+                        phone: studentData.phone,
+                        course: studentData.course,
+                        semester: studentData.semester,
+                        gpa: studentData.gpa,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    result = await supabaseClient.from('students').update(updateData).eq('id', editingStudentId);
                     showNotification('Student updated successfully!', 'success');
-                    editingId = null;
+                    editingStudentId = null;
                     document.querySelector('#studentForm .btn-primary').textContent = 'Register Student';
                 } else {
                     // Add new student
@@ -626,9 +648,32 @@
             };
 
             try {
-                const { data, error } = await supabaseClient.from('faculty').insert([facultyData]);
+                let result;
+                if (editingFacultyId) {
+                    // Update existing faculty - exclude unique fields
+                    const updateData = {
+                        first_name: facultyData.first_name,
+                        last_name: facultyData.last_name,
+                        phone: facultyData.phone,
+                        department_id: facultyData.department_id,
+                        specialization: facultyData.specialization,
+                        hire_date: facultyData.hire_date,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    result = await supabaseClient.from('faculty').update(updateData).eq('id', editingFacultyId);
+                    showNotification('Faculty updated successfully!', 'success');
+                    editingFacultyId = null;
+                    document.querySelector('#facultyForm .btn-primary').textContent = 'Add Faculty';
+                } else {
+                    // Add new faculty
+                    result = await supabaseClient.from('faculty').insert([facultyData]);
+                    showNotification('Faculty added successfully!', 'success');
+                }
+                
+                const { data, error } = result;
                 if (error) throw error;
-                showNotification('Faculty added successfully!', 'success');
+                
                 e.target.reset();
                 await loadFaculty();
             } catch (error) {
@@ -650,9 +695,32 @@
             };
 
             try {
-                const { data, error } = await supabaseClient.from('courses').insert([courseData]);
+                let result;
+                if (editingCourseId) {
+                    // Update existing course - exclude unique fields
+                    const updateData = {
+                        course_code: courseData.course_code,
+                        course_name: courseData.course_name,
+                        credits: courseData.credits,
+                        department_id: courseData.department_id,
+                        faculty_id: courseData.faculty_id,
+                        semester: courseData.semester,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    result = await supabaseClient.from('courses').update(updateData).eq('id', editingCourseId);
+                    showNotification('Course updated successfully!', 'success');
+                    editingCourseId = null;
+                    document.querySelector('#courseForm .btn-primary').textContent = 'Add Course';
+                } else {
+                    // Add new course
+                    result = await supabaseClient.from('courses').insert([courseData]);
+                    showNotification('Course added successfully!', 'success');
+                }
+                
+                const { data, error } = result;
                 if (error) throw error;
-                showNotification('Course added successfully!', 'success');
+                
                 e.target.reset();
                 await loadCourses();
             } catch (error) {
@@ -671,9 +739,22 @@
             };
 
             try {
-                const { data, error } = await supabaseClient.from('departments').insert([deptData]);
+                let result;
+                if (editingDepartmentId) {
+                    // Update existing department
+                    result = await supabaseClient.from('departments').update(deptData).eq('id', editingDepartmentId);
+                    showNotification('Department updated successfully!', 'success');
+                    editingDepartmentId = null;
+                    document.querySelector('#departmentForm .btn-primary').textContent = 'Add Department';
+                } else {
+                    // Add new department
+                    result = await supabaseClient.from('departments').insert([deptData]);
+                    showNotification('Department added successfully!', 'success');
+                }
+                
+                const { data, error } = result;
                 if (error) throw error;
-                showNotification('Department added successfully!', 'success');
+                
                 e.target.reset();
                 await loadDepartments();
             } catch (error) {
@@ -684,20 +765,26 @@
         // Clear form functions
         function clearStudentForm() {
             document.getElementById('studentForm').reset();
-            editingId = null;
+            editingStudentId = null;
             document.querySelector('#studentForm .btn-primary').textContent = 'Register Student';
         }
 
         function clearFacultyForm() {
             document.getElementById('facultyForm').reset();
+            editingFacultyId = null;
+            document.querySelector('#facultyForm .btn-primary').textContent = 'Add Faculty';
         }
 
         function clearCourseForm() {
             document.getElementById('courseForm').reset();
+            editingCourseId = null;
+            document.querySelector('#courseForm .btn-primary').textContent = 'Add Course';
         }
 
         function clearDepartmentForm() {
             document.getElementById('departmentForm').reset();
+            editingDepartmentId = null;
+            document.querySelector('#departmentForm .btn-primary').textContent = 'Add Department';
         }
 
         // Search functions
@@ -816,6 +903,9 @@
             document.getElementById('semester').value = student.semester;
             document.getElementById('gpa').value = student.gpa;
             
+            // Set editing state
+            editingStudentId = studentId;
+            
             // Update submit button text
             document.querySelector('#studentForm .btn-primary').textContent = 'Update Student';
             
@@ -852,6 +942,12 @@
             document.getElementById('specialization').value = member.specialization;
             document.getElementById('hireDate').value = member.hire_date || '';
             
+            // Set editing state
+            editingFacultyId = facultyId;
+            
+            // Update submit button text
+            document.querySelector('#facultyForm .btn-primary').textContent = 'Update Faculty';
+            
             // Switch to faculty tab and scroll to form
             showTab('faculty');
             document.querySelector('#faculty-tab .form-section').scrollIntoView({ behavior: 'smooth' });
@@ -884,6 +980,12 @@
             document.getElementById('courseFaculty').value = course.faculty_id || '';
             document.getElementById('courseSemester').value = course.semester;
             
+            // Set editing state
+            editingCourseId = courseId;
+            
+            // Update submit button text
+            document.querySelector('#courseForm .btn-primary').textContent = 'Update Course';
+            
             // Switch to courses tab and scroll to form
             showTab('courses');
             document.querySelector('#courses-tab .form-section').scrollIntoView({ behavior: 'smooth' });
@@ -912,6 +1014,12 @@
             document.getElementById('departmentName').value = dept.name;
             document.getElementById('headName').value = dept.head_name;
             document.getElementById('description').value = dept.description || '';
+            
+            // Set editing state
+            editingDepartmentId = deptId;
+            
+            // Update submit button text
+            document.querySelector('#departmentForm .btn-primary').textContent = 'Update Department';
             
             // Switch to departments tab and scroll to form
             showTab('departments');
